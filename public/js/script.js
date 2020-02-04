@@ -1,7 +1,7 @@
 // https://192.168.0.11:3000/
 
 let dev_con = {
-    mode: 0
+    mode: 1
 };
 
 switch (dev_con.mode) {
