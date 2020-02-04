@@ -1,5 +1,18 @@
 // https://192.168.0.11:3000/
 
+let dev_con = {
+    mode: 1
+};
+
+switch (dev_con.mode) {
+    case 0:
+        dev_con.worker = "/js/recWorker0.js"
+        break;
+    case 1:
+        dev_con.worker = "/js/recWorker1.js"
+        break;
+}
+
 let isInit = false;
 let audioContext;
 let audioRecorder;
@@ -127,7 +140,7 @@ function Recorder(source) {
     this.connection = false;
     this.newWorker = function () {
         console.log('create worker');
-        worker = new Worker('/js/recWorker.js');
+        worker = new Worker(dev_con.worker);
         worker.onmessage = (evt) => {
             switch (evt.data.aType) {
                 case 'text':

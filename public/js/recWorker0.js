@@ -1,4 +1,9 @@
+// kakao demo
+
 let webSock;
+let config = {
+    wss: "wss://speech-api.kakao.com:9443/stt"
+};
 
 onmessage = (evt) => {
     let ed = evt.data;
@@ -33,7 +38,7 @@ function init() {
 }
 
 function WebConnection() {
-    webSock = new WebSocket("wss://speech-api.kakao.com:9443/stt");
+    webSock = new WebSocket(config.wss);
 }
 
 function WebConfig() {
