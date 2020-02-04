@@ -10,7 +10,7 @@ switch (dev_con.mode) {
         break;
     case 1: // local or heroku
         // dev_con.wss = "wss://192.168.0.11:3000";
-        dev_con.wss = "wss://melius-stt.herokuapp.com";
+        dev_con.wss = "wss://melius-stts.herokuapp.com/";
         break;
 }
 
