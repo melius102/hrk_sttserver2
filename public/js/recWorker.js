@@ -1,9 +1,4 @@
-// kakao demo
-
 let webSock;
-let config = {
-    wss: "wss://speech-api.kakao.com:9443/stt"
-};
 
 onmessage = (evt) => {
     let ed = evt.data;
@@ -12,7 +7,7 @@ onmessage = (evt) => {
     }
     switch (ed.command) {
         case 'init':
-            init();
+            init(ed.config);
             break;
         case 'clear':
             clear();
@@ -32,13 +27,13 @@ onmessage = (evt) => {
     }
 }
 
-function init() {
-    WebConnection();
+function init(config) {
+    WebConnection(config.wss);
     WebConfig();
 }
 
-function WebConnection() {
-    webSock = new WebSocket(config.wss);
+function WebConnection(wss) {
+    webSock = new WebSocket(wss);
 }
 
 function WebConfig() {
@@ -120,7 +115,9 @@ function WebClose() {
     webSock.close();
 }
 
+// let cnt = 0;
 function record(inputBuffer) {
+    // if (cnt > 0) return;
     recBuffersL.push(inputBuffer[0]);
     recBuffersR.push(inputBuffer[1]);
     recLength += inputBuffer[0].length;
@@ -130,6 +127,7 @@ function record(inputBuffer) {
         let interleaved = resample(inputBuffer[0]);
         let pcm = encodePCM(interleaved);
         webSock.send(pcm);
+        // cnt++;
     }
 }
 

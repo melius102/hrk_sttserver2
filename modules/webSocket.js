@@ -32,12 +32,18 @@ module.exports = (server) => {
                 try {
                     let msg = JSON.parse(message);
                     switch (msg.cmd) {
-                        case "recogStart":
+                        case "recog":
                             // streamData = [];
                             readable = new Readable();
                             readable._read = () => {};
                             stt_kakao(readable, function (data) {
-                                console.log(data);
+                                if (data.data.type == "finalResult") {
+                                    let result = {
+                                        cmd: "onFinalResult",
+                                        msg: data.data.value
+                                    };
+                                    ws.send(JSON.stringify(result));
+                                }
                             });
                             break;
                         case "recogEnd":

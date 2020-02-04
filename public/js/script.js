@@ -1,15 +1,16 @@
 // https://192.168.0.11:3000/
 
 let dev_con = {
-    mode: 1
+    mode: 0
 };
 
 switch (dev_con.mode) {
-    case 0:
-        dev_con.worker = "/js/recWorker0.js"
+    case 0: // kakao_demo
+        dev_con.wss = "wss://speech-api.kakao.com:9443/stt";
         break;
-    case 1:
-        dev_con.worker = "/js/recWorker1.js"
+    case 1: // local or heroku
+        // dev_con.wss = "wss://192.168.0.11:3000";
+        dev_con.wss = "wss://melius-stt.herokuapp.com";
         break;
 }
 
@@ -65,6 +66,9 @@ function initAudio() {
 
             audioRecorder = new Recorder(gainNode);
             audioRecorder.newWorker();
+            if (dev_con.mode == 1) {
+                audioRecorder.init(); // connect webSocket
+            }
             isInit = true;
             initGUI(isInit);
             resultMsg('Initialization complete');
@@ -97,8 +101,11 @@ function clickPlay() {
     // gainNode.gain.value = 1.0;
 
     resultMsg('Connecting to server ...');
-    audioRecorder.init(); // connect webSocket
+    if (dev_con.mode == 0) {
+        audioRecorder.init(); // connect webSocket
+    }
     audioRecorderStart();
+    setTimeout(clickStop, 10000);
 }
 
 function clickStop() {
@@ -108,7 +115,9 @@ function clickStop() {
     // gainNode.gain.value = 0.0;
 
     audioRecorder.stop();
-    audioRecorder.close(); // disconnect webSocket
+    if (dev_con.mode == 0) {
+        audioRecorder.close(); // disconnect webSocket
+    }
 }
 
 $('#btnPlay').click(clickPlay);
@@ -140,7 +149,7 @@ function Recorder(source) {
     this.connection = false;
     this.newWorker = function () {
         console.log('create worker');
-        worker = new Worker(dev_con.worker);
+        worker = new Worker("/js/recWorker.js");
         worker.onmessage = (evt) => {
             switch (evt.data.aType) {
                 case 'text':
@@ -172,7 +181,10 @@ function Recorder(source) {
 
     this.init = function () {
         worker.postMessage({
-            command: 'init'
+            command: 'init',
+            config: {
+                wss: dev_con.wss
+            }
         });
     };
 
