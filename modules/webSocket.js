@@ -1,8 +1,11 @@
 const fs = require('fs');
 const WebSocket = require("ws");
 const {
-    stt1_kakao,
-    stt2_kakao
+    Readable
+} = require('stream');
+
+const {
+    stt_kakao,
 } = require('./kakao-api');
 
 module.exports = (server) => {
@@ -18,7 +21,8 @@ module.exports = (server) => {
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         console.log('ip:', ip);
 
-        let streamData = [];
+        // let streamData = [];
+        let readable;
         ws.binaryType = "nodebuffer"; // default
         // ws.binaryType = "arraybuffer";
         // ws.binaryType = "fragments";
@@ -29,20 +33,21 @@ module.exports = (server) => {
                     let msg = JSON.parse(message);
                     switch (msg.cmd) {
                         case "recogStart":
-                            streamData = [];
-                            break;
-                        case "recogEnd":
-                            // test for kakao
-                            // let readStream = fs.createReadStream('media/heykakao.wav');
-                            // stt1_kakao(readStream, function (data) {
-                            //     console.log(data);
-                            // });
-
-                            let buffer = Buffer.concat(streamData);
-                            console.log(buffer);
-                            stt2_kakao(buffer, function (data) {
+                            // streamData = [];
+                            readable = new Readable();
+                            readable._read = () => {};
+                            stt_kakao(readable, function (data) {
                                 console.log(data);
                             });
+                            break;
+                        case "recogEnd":
+                            // method 1 stream -> buffer
+                            // let buffer = Buffer.concat(streamData);
+                            // console.log('buffer', buffer);
+                            // stt_kakao(buffer);
+
+                            // method 2 stream -> readable stream
+                            readable.push(null); // end of stream
                             break;
                     }
                     console.log(msg);
@@ -52,12 +57,11 @@ module.exports = (server) => {
                 console.log("string:", message);
                 ws.send('msg from server');
             } else if (message instanceof Buffer) {
-                console.log('Buffer:');
-                console.log(message);
-                // console.log(message.toString());
-                // ws.send(message);
+                // console.log('Buffer:');
+                // console.log(message);
 
-                streamData.push(message);
+                // streamData.push(message); // method 1
+                readable.push(message); // method 2
             } else if (message instanceof ArrayBuffer) {
                 console.log('ArrayBuffer:');
                 console.log(message);
@@ -87,4 +91,10 @@ module.exports = (server) => {
         // }, 10000);
         // ws.interval = interval;
     });
+
+    // test for kakao
+    // let readStream = fs.createReadStream('media/heykakao.wav');
+    // stt_kakao(readStream, function (data) {
+    //     console.log(data);
+    // });
 }
