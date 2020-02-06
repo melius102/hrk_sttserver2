@@ -37,9 +37,9 @@ module.exports = (server) => {
                             readable = new Readable();
                             readable._read = () => {};
                             stt_kakao(readable, function (data) {
-                                if (data.data.type == "finalResult") {
+                                if (data.data.type == "finalResult" || data.data.type == "partialResult" || data.data.type == "errorCalled") {
                                     let result = {
-                                        cmd: "onFinalResult",
+                                        cmd: data.data.type,
                                         msg: data.data.value
                                     };
                                     ws.send(JSON.stringify(result));

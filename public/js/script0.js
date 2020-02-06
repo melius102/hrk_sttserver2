@@ -9,7 +9,7 @@ switch (dev_con.mode) {
         dev_con.wss = "wss://speech-api.kakao.com:9443/stt";
         break;
     case 1: // local or heroku
-        // dev_con.wss = "wss://192.168.0.61:3000";
+        // dev_con.wss = "wss://192.168.0.11:3000";
         dev_con.wss = "wss://melius-stts.herokuapp.com/";
         break;
 }
@@ -19,8 +19,21 @@ let audioContext;
 let audioRecorder;
 let gainNode;
 
+function initGUI(isInit) {
+    if (isInit) {
+        $('#btnPlay').text("Play");
+        $('.hidden').slideDown();
+    } else {
+        $('#btnPlay').text("Initialization");
+        $('.hidden').fadeOut();
+    }
+}
+
+initGUI(isInit);
+
+
 function resultMsg(msg) {
-    searchText.value = msg;
+    $('#result').text(msg);
 }
 
 function initAudio() {
@@ -57,8 +70,8 @@ function initAudio() {
                 audioRecorder.init(); // connect webSocket
             }
             isInit = true;
-            changeBtnMode(1);
-            resultMsg('Press play button to record');
+            initGUI(isInit);
+            resultMsg('Initialization complete');
         })
         .catch((err) => {
             console.log("navigator.getUserMedia error: ", err);
@@ -68,7 +81,7 @@ function initAudio() {
 function audioRecorderStart() {
     console.log('audioRecorderStart ...');
     if (audioRecorder.connection) { // webSocket connection > recording
-        resultMsg('Speak now');
+        resultMsg('Recording ...');
         audioRecorder.clear();
         audioRecorder.record();
     } else if (playState) {
@@ -79,7 +92,6 @@ function audioRecorderStart() {
 }
 
 let playState = false;
-let sid;
 
 function clickPlay() {
     initAudio();
@@ -93,13 +105,11 @@ function clickPlay() {
         audioRecorder.init(); // connect webSocket
     }
     audioRecorderStart();
-    clearTimeout(sid);
-    sid = setTimeout(clickStop, 20000);
+    setTimeout(clickStop, 10000);
 }
 
 function clickStop() {
     if (!isInit || !playState) return;
-    clearTimeout(sid);
     playState = false;
     console.log("*****Stop*****");
     // gainNode.gain.value = 0.0;
@@ -108,36 +118,10 @@ function clickStop() {
     if (dev_con.mode == 0) {
         audioRecorder.close(); // disconnect webSocket
     }
-    changeBtnMode(1);
 }
 
-$('#wrap #searchUI .searchBtn').click(function (evt) {
-    let index = $(this).index();
-    if (index == 0) {
-        clickPlay();
-    } else if (index == 1) {
-        clickPlay();
-        changeBtnMode(2);
-    } else {
-        clickStop();
-    }
-});
-
-function changeBtnMode(mode) {
-    if (mode == 0) {
-        $('#wrap #searchUI .searchBtn').hide();
-        $('#wrap #searchUI .searchBtn').eq(0).show();
-    } else if (mode == 1) {
-        $('#wrap #searchUI .searchBtn').hide();
-        $('#wrap #searchUI .searchBtn').eq(1).show();
-    } else if (mode == 2) {
-        $('#wrap #searchUI .searchBtn').hide();
-        $('#wrap #searchUI .searchBtn').eq(2).show();
-    }
-}
-
-changeBtnMode(0);
-searchText.value = "Press mic button to activate";
+$('#btnPlay').click(clickPlay);
+$('#btnStop').click(clickStop);
 
 
 function Recorder(source) {
@@ -183,14 +167,11 @@ function Recorder(source) {
     function message(that, msg) {
         try {
             let json = JSON.parse(msg);
-            if (json.cmd == "onopen") {
-                that.connection = true;
-            } else if (json.cmd == "finalResult") {
+            if (json.cmd == "finalResult") {
                 clickStop();
                 resultMsg(json.msg);
-            } else if (json.cmd == "errorCalled") {
-                clickStop();
-                resultMsg("Fail to recognize, Try again.");
+            } else if (json.cmd == "onopen") {
+                that.connection = true;
             }
             console.log(json);
         } catch (err) {

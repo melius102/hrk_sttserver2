@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css?family=Patua+One&display=swap');
+@import url('https://cdn.rawgit.com/young-ha/webfont-archive/master/css/Godo.css');
+
+div,
+button,
+input,
+h1,
+p,
+table,
+tr,
+td {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    /* border: 1px solid red; */
+}
+
+#wrap {
+    width: min(500px, 90%);
+    margin: 15vh auto 0;
+    font-family: 'Patua One', 'Godo', sans-serif;
+    /* border: 0; */
+}
+
+#wrap #title {
+    --logo_height: min(60px, 12vw);
+    text-align: center;
+    padding: calc(var(--logo_height) * 4/6) 0;
+    font-size: 0;
+    /* border: 0; */
+}
+
+#wrap #title #logo {
+    display: inline-block;
+    background-color: #333;
+    width: var(--logo_height);
+    height: var(--logo_height);
+    color: white;
+    font-size: calc(var(--logo_height) * 6/8);
+    font-weight: bold;
+    line-height: var(--logo_height);
+    border-radius: calc(var(--logo_height) * 1/8);
+    /* border: 0; */
+}
+
+#wrap #title h1 {
+    display: inline-block;
+    margin-left: calc(var(--logo_height) * 2/8);
+    font-size: calc(var(--logo_height) * 7/8);
+    font-weight: bold;
+    /* border: 0; */
+}
+
+#wrap #searchUI {
+    --btn_height: 40px;
+}
+
+#wrap #searchUI table tr td:nth-of-type(1) {
+    width: 100%;
+}
+
+#wrap #searchUI table tr td:nth-of-type(1) #searchText {
+    font-size: 18px;
+    height: var(--btn_height);
+    text-align: center;
+    background-color: white;
+}
+
+
+#wrap #searchUI table tr td:nth-of-type(2) {
+    width: var(--btn_height);
+}
+
+#wrap #searchUI .searchBtn {
+    width: var(--btn_height);
+    height: var(--btn_height);
+    margin-left: 5px;
+    border-radius: 5px;
+    background-color: #333;
+    color: white;
+    font-size: 20px;
+    border: 0;
+}
+
+#wrap footer {
+    --text_size: min(15px, 3vw);
+    padding: calc(var(--text_size) * 8/3) 0;
+    font-size: var(--text_size);
+    text-align: center;
+}
