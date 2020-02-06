@@ -57,8 +57,8 @@ function initAudio() {
                 audioRecorder.init(); // connect webSocket
             }
             isInit = true;
-            changeBtnMode(1);
-            resultMsg('Press play button to record');
+            // changeBtnMode(1);
+            // resultMsg('Press play button to record');
         })
         .catch((err) => {
             console.log("navigator.getUserMedia error: ", err);
@@ -185,6 +185,8 @@ function Recorder(source) {
             let json = JSON.parse(msg);
             if (json.cmd == "onopen") {
                 that.connection = true;
+                changeBtnMode(1);
+                resultMsg('Press play button to record');
             } else if (json.cmd == "finalResult") {
                 clickStop();
                 resultMsg(json.msg);
