@@ -65,10 +65,12 @@ function initAudio() {
         });
 }
 
+let resultFlag = 0;
 function audioRecorderStart() {
     console.log('audioRecorderStart ...');
     if (audioRecorder.connection) { // webSocket connection > recording
         resultMsg('Speak now');
+        resultFlag = 0;
         audioRecorder.clear();
         audioRecorder.record();
     } else if (playState) {
@@ -94,7 +96,7 @@ function clickPlay() {
     }
     audioRecorderStart();
     clearTimeout(sid);
-    sid = setTimeout(clickStop, 20000);
+    sid = setTimeout(clickStop, 15000);
 }
 
 function clickStop() {
@@ -109,6 +111,7 @@ function clickStop() {
         audioRecorder.close(); // disconnect webSocket
     }
     changeBtnMode(1);
+    if (resultFlag == 0) resultMsg('');
 }
 
 $('#wrap #searchUI .searchBtn').click(function (evt) {
@@ -185,14 +188,16 @@ function Recorder(source) {
             let json = JSON.parse(msg);
             if (json.cmd == "onopen") {
                 that.connection = true;
-                changeBtnMode(1);
                 resultMsg('Press play button to record');
+                changeBtnMode(1);
             } else if (json.cmd == "finalResult") {
-                clickStop();
                 resultMsg(json.msg);
-            } else if (json.cmd == "errorCalled") {
+                resultFlag = 1;
                 clickStop();
+            } else if (json.cmd == "errorCalled") {
                 resultMsg("Fail to recognize, Try again.");
+                resultFlag = 1;
+                clickStop();
             }
             console.log(json);
         } catch (err) {
