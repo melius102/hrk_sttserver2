@@ -191,6 +191,9 @@ function Recorder(source) {
                 that.connection = true;
                 resultMsg('Press play button to record');
                 changeBtnMode(1);
+            } else if (json.cmd == "onclose") {
+                that.connection = false;
+                that.init();
             } else if (json.cmd == "finalResult") {
                 resultMsg(json.msg);
                 resultFlag = 1;

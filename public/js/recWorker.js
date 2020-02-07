@@ -70,6 +70,10 @@ function WebConfig() {
 
     webSock.onclose = function () {
         console.log("websock onclose");
+        postMessage({
+            aType: 'text',
+            aBuf: '{\"cmd\":\"onclose\"}'
+        });
     };
 
     webSock.onerror = function (err) {
