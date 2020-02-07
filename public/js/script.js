@@ -66,6 +66,7 @@ function initAudio() {
 }
 
 let resultFlag = 0;
+
 function audioRecorderStart() {
     console.log('audioRecorderStart ...');
     if (audioRecorder.connection) { // webSocket connection > recording
@@ -194,6 +195,7 @@ function Recorder(source) {
                 resultMsg(json.msg);
                 resultFlag = 1;
                 clickStop();
+                openWindow(json.msg);
             } else if (json.cmd == "errorCalled") {
                 resultMsg("Fail to recognize, Try again.");
                 resultFlag = 1;
@@ -240,4 +242,30 @@ function Recorder(source) {
         });
         this.connection = false;
     };
+}
+
+let searchWin = [];
+
+function openWindow(query) {
+    if (searchWin.length == 0) {
+        searchWin.push({
+            win: null,
+            url: 'https://search.naver.com/search.naver?&query='
+        });
+        searchWin.push({
+            win: null,
+            url: 'https://search.daum.net/search?&q='
+        });
+        searchWin.push({
+            win: null,
+            url: 'https://www.google.com/search?&q='
+        });
+    }
+
+    if (query) {
+        searchWin.forEach(v => {
+            if (!v.win || v.win.closed) v.win = window.open(v.url + encodeURI(query));
+            else v.win.location.href = v.url + encodeURI(query);
+        });
+    }
 }
