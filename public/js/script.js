@@ -140,10 +140,55 @@ function changeBtnMode(mode) {
     }
 }
 
-changeBtnMode(0);
-searchText.value = "Press mic button to activate";
+let searchWin = [];
+
+function openWindow(query) {
+    if (query) {
+        searchWin.forEach(v => {
+            if (v.act) {
+                if (!v.win || v.win.closed) v.win = window.open(v.url + encodeURI(query));
+                else v.win.location.href = v.url + encodeURI(query);
+            }
+        });
+    }
+}
+
+function Initialize() {
+    changeBtnMode(0);
+    searchText.value = "Press mic button to activate";
+
+    searchWin.push({
+        win: null,
+        act: false,
+        url: 'https://www.google.com/search?&q='
+    });
+    searchWin.push({
+        win: null,
+        act: false,
+        url: 'https://search.daum.net/search?&q='
+    });
+    searchWin.push({
+        win: null,
+        act: false,
+        url: 'https://search.naver.com/search.naver?&query='
+    });
+
+    $('#engines .engine').click(function (evt) {
+        let index = $(this).index();
+        searchWin[index].act = !searchWin[index].act;
+        if (searchWin[index].act) {
+            $(this).css('filter', 'grayscale(0)');
+        } else {
+            $(this).css('filter', 'grayscale(0.8)');
+        }
+    });
+}
+
+Initialize();
 
 
+//////////////
+// constructor
 function Recorder(source) {
 
     //////////////////
@@ -245,30 +290,4 @@ function Recorder(source) {
         });
         this.connection = false;
     };
-}
-
-let searchWin = [];
-
-function openWindow(query) {
-    if (searchWin.length == 0) {
-        searchWin.push({
-            win: null,
-            url: 'https://search.naver.com/search.naver?&query='
-        });
-        searchWin.push({
-            win: null,
-            url: 'https://search.daum.net/search?&q='
-        });
-        searchWin.push({
-            win: null,
-            url: 'https://www.google.com/search?&q='
-        });
-    }
-
-    if (query) {
-        searchWin.forEach(v => {
-            if (!v.win || v.win.closed) v.win = window.open(v.url + encodeURI(query));
-            else v.win.location.href = v.url + encodeURI(query);
-        });
-    }
 }
