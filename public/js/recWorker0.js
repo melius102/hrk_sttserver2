@@ -115,7 +115,9 @@ function WebClose() {
     webSock.close();
 }
 
+// let cnt = 0;
 function record(inputBuffer) {
+    // if (cnt > 0) return;
     recBuffersL.push(inputBuffer[0]);
     recBuffersR.push(inputBuffer[1]);
     recLength += inputBuffer[0].length;
@@ -123,7 +125,9 @@ function record(inputBuffer) {
     if (webSock != 0 && webSock.readyState == 1) {
         webSock.binaryType = "arraybuffer";
         let interleaved = resample(inputBuffer[0]);
-        webSock.send(interleaved);
+        let pcm = encodePCM(interleaved);
+        webSock.send(pcm);
+        // cnt++;
     }
 }
 
@@ -142,4 +146,18 @@ function resample(e) {
         s += o;
     }
     return a;
+}
+
+function encodePCM(samples) {
+    let buffer = new ArrayBuffer(samples.length * 2);
+    let view = new DataView(buffer);
+    floatTo16BitPCM(view, 0, samples);
+    return view;
+}
+
+function floatTo16BitPCM(output, offset, input) {
+    for (let i = 0; i < input.length; i++, offset += 2) {
+        let s = Math.max(-1, Math.min(1, input[i]));
+        output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    }
 }

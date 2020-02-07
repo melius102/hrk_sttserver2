@@ -23,8 +23,8 @@ module.exports = (server) => {
 
         // let streamData = [];
         let readable;
-        ws.binaryType = "nodebuffer"; // default
-        // ws.binaryType = "arraybuffer";
+        // ws.binaryType = "nodebuffer"; // default
+        ws.binaryType = "arraybuffer";
         // ws.binaryType = "fragments";
 
         ws.on('message', (message) => {
@@ -69,9 +69,11 @@ module.exports = (server) => {
                 // streamData.push(message); // method 1
                 readable.push(message); // method 2
             } else if (message instanceof ArrayBuffer) {
-                console.log('ArrayBuffer:');
-                console.log(message);
-                ws.send(message);
+                // console.log('ArrayBuffer:');
+                // console.log(message);
+                let interleaved = new Float32Array(message); // ArrayBuffer -> Float32Array
+                let pcm = encodePCM(interleaved); // DataView.buffer == ArrayBuffer
+                readable.push(Buffer.from(pcm.buffer)); // ArrayBuffer -> Buffer
             } else if (message instanceof Array) {
                 console.log('Array:');
                 console.log(message);
@@ -86,7 +88,7 @@ module.exports = (server) => {
 
         ws.on('close', () => {
             console.log('ws.on close');
-            if (ws.interval) clearInterval(ws.interval);
+            // if (ws.interval) clearInterval(ws.interval);
         });
 
         // const interval = setInterval(() => {
@@ -103,4 +105,18 @@ module.exports = (server) => {
     // stt_kakao(readStream, function (data) {
     //     console.log(data);
     // });
+}
+
+function encodePCM(samples) {
+    let buffer = new ArrayBuffer(samples.length * 2);
+    let view = new DataView(buffer);
+    floatTo16BitPCM(view, 0, samples);
+    return view;
+}
+
+function floatTo16BitPCM(output, offset, input) {
+    for (let i = 0; i < input.length; i++, offset += 2) {
+        let s = Math.max(-1, Math.min(1, input[i]));
+        output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    }
 }
