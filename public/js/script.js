@@ -26,7 +26,11 @@ function resultMsg(msg) {
 function initAudio() {
     if (isInit) return;
     resultMsg('Initializing audio ...');
-    audioContext = new window.AudioContext();
+    if (window.AudioContext) {
+        audioContext = new window.AudioContext();
+    } else {
+        audioContext = new window.webkitAudioContext();
+    }
 
     let constraints = {
         "audio": {

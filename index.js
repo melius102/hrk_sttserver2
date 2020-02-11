@@ -28,11 +28,10 @@ if (process.env.PORT) {
     server.listen(port, function () {
         console.log("HTTP server listening on port " + port);
     });
-
 } else {
     // https sevrver for local server
-    const privateKey = fs.readFileSync('openssl/private.pem');
-    const certificate = fs.readFileSync('openssl/public.pem');
+    const privateKey = fs.readFileSync('../../openssl/private.pem');
+    const certificate = fs.readFileSync('../../openssl/public.pem');
     const credentials = {
         key: privateKey,
         cert: certificate
