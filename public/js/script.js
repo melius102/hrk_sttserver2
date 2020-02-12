@@ -44,6 +44,11 @@ function initAudio() {
         }
     };
 
+    if (!navigator.mediaDevices) {
+        alert("Your browser does not support UserMedia. Use other one.");
+        return;
+    }
+
     navigator.mediaDevices.getUserMedia(constraints)
         .then((stream) => {
             gainNode = audioContext.createGain();
