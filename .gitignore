@@ -2,3 +2,4 @@ node_modules
 openssl
 media
 .DS_Store
+/modules/private_keys.js
